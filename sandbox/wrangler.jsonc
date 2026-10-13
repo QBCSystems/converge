@@ -1,0 +1,40 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "converge-sandbox",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  // The converge deployment this sandbox runs against, and the guards on the free path.
+  "vars": {
+    // Yours: the deployed converge Worker's address and your Cloudflare account id (the Worker refuses to serve until both are set).
+    "CONVERGE_URL": "https://converge.<your-subdomain>.workers.dev",
+    "ACCOUNT_ID": "<your-cloudflare-account-id>",
+    "SANDBOX_ENABLED": "1",
+    // The converge projects a session may start from (the same list as converge's SANDBOX_TEMPLATES): none until you name some.
+    "SANDBOX_TEMPLATES": "pocket,arcade",
+    "SESSION_AI_USD": "0.30",
+    "DAILY_AI_USD": "3",
+    "SESSIONS_PER_IP_HOUR": "3"
+  },
+  // converge (the platform) is reached by service binding: a Worker cannot fetch another Worker by its public address.
+  "services": [{ "binding": "CONVERGE", "service": "converge" }],
+  "durable_objects": {
+    "bindings": [
+      { "name": "BOX", "class_name": "SandboxBox" },
+      { "name": "LIMITS", "class_name": "Limits" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["SandboxBox", "Limits"] }
+  ],
+  // One container per run: converge's planner, swarm and agents, nothing else. Built and pushed by
+  // sandbox/scripts/sandbox-image.sh (no Docker), which writes its reference here.
+  "containers": [
+    {
+      "class_name": "SandboxBox",
+      "image": "registry.cloudflare.com/66a9444a589027355804b45c69cb0eec/converge-sandbox:ee2a54a-1791895245",
+      "instance_type": "standard-1",
+      "max_instances": 12
+    }
+  ]
+}

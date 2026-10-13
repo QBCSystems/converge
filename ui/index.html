@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="referrer" content="no-referrer">
+  <title>Converge</title>
+  <meta name="description" content="AI agents build and fix your code. Converge checks each change and lands it.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <header class="top">
+    <span class="brand"><img class="logo" src="logo.svg" alt="" width="20" height="20">converge</span>
+    <button class="project" id="btn-project" type="button" title="Switch project" hidden></button>
+    <button class="gh-btn" id="btn-github" type="button" hidden title="This project on GitHub">GitHub</button>
+    <button class="gh-btn" id="btn-pr" type="button" hidden>Pull request</button>
+    <button class="gh-btn" id="btn-folder" type="button" hidden title="Where results are saved on your computer">Folder</button>
+    <span id="summary"></span>
+    <span class="grow"></span>
+    <span id="conn"></span>
+    <button class="theme-btn" id="btn-theme" type="button" title="Theme: System (click for Dark)" aria-label="Toggle theme">◐</button>
+    <button class="link" id="btn-keys" type="button" hidden>Settings</button>
+    <button class="link" id="btn-signout" type="button" hidden>Sign out</button>
+  </header>
+
+  <section class="signin" id="signin" hidden>
+    <form class="card si-card" id="signin-form" autocomplete="on">
+      <div class="card-h">
+        <div class="si-brand">
+          <img class="logo" src="logo.svg" alt="converge" width="28" height="28">
+          <h1>converge</h1>
+        </div>
+      </div>
+
+      <div id="si-mode-user" class="si-mode">
+        <label class="field">Username or Email
+          <input id="si-identifier" name="username" type="text" autocomplete="username" placeholder="you@example.com" autofocus>
+        </label>
+        <label class="field">Password
+          <input id="si-password" name="password" type="password" autocomplete="current-password" placeholder="••••••••">
+        </label>
+      </div>
+
+      <div id="si-mode-key" class="si-mode" hidden>
+        <label class="field">Key
+          <input id="si-key" name="key" type="password" autocomplete="off" placeholder="Admin or view key">
+        </label>
+        <label class="field">Project <span class="dim small">only for a view key</span>
+          <input id="si-project" autocomplete="off" spellcheck="false" placeholder="project name">
+        </label>
+      </div>
+
+      <div class="si-foot-row">
+        <label class="check"><input type="checkbox" id="si-remember" checked> Remember on this device</label>
+        <button type="button" class="link small" id="si-key-toggle">Use a key</button>
+      </div>
+
+      <span class="err" id="si-error" role="alert"></span>
+      <button type="submit" class="primary big" id="si-submit">Sign in</button>
+    </form>
+
+    <div class="projects" id="projects" hidden>
+      <button type="button" class="link back-board" id="back-board" hidden>← Back</button>
+      <div class="pj-head">
+        <h1>Projects</h1>
+        <span class="grow"></span>
+        <button type="button" class="primary" id="pj-new">+ New project</button>
+      </div>
+      <input id="pj-q" type="search" placeholder="Find a project" autocomplete="off" spellcheck="false">
+      <ol class="pj-list" id="si-list" aria-label="your projects"></ol>
+    </div>
+  </section>
+
+  <main id="board" class="board" hidden>
+    <div class="digest" id="digest" hidden></div>
+    <section class="hub" id="overview">
+      <div class="folder-note" id="folder-note" role="status" hidden></div>
+      <div class="scope-note" id="scope-note" hidden></div>
+      <div class="goal" id="goal" hidden></div>
+      <div class="fleet" id="fleet-wrap" hidden><div id="fleet"></div></div>
+      <div class="tape" aria-label="Project history">
+        <div class="tape-ctl">
+          <button type="button" class="tbtn" id="tl-prev" hidden title="Previous landing (←)" aria-label="previous landing">⏮</button>
+          <button type="button" class="tbtn" id="tl-play" title="Play history" aria-label="play">▶</button>
+          <button type="button" class="tbtn" id="tl-next" hidden title="Next landing (→)" aria-label="next landing">⏭</button>
+        </div>
+        <div class="tl-track">
+          <input id="timeline-range" type="range" min="0" max="0" value="0" step="1" aria-label="Drag to see the project at an earlier point">
+          <div id="tl-marks" class="tl-marks" aria-label="Landings, rewinds and rejections"></div>
+        </div>
+        <button type="button" class="live-badge on" id="tl-live" title="Back to now">LIVE</button>
+      </div>
+      <div class="tape-info" id="timeline-banner" hidden></div>
+      <div class="seg agent-view" id="agent-view" role="group" aria-label="show agents as" hidden>
+        <button type="button" data-v="squares" aria-pressed="true" title="One square per agent">Squares</button>
+        <button type="button" data-v="cards" aria-pressed="false" title="One card per agent, showing what it's doing">Cards</button>
+      </div>
+      <div id="dots" class="dots" aria-label="Agents: pick one for details"></div>
+      <div class="deck-wrap" id="deck-wrap" hidden>
+        <div class="deck" id="deck" aria-label="Active agents"></div>
+        <button type="button" class="link deck-more" id="deck-more" hidden></button>
+      </div>
+      <div class="bar">
+        <div class="bar-search">
+          <input id="filter" type="search" placeholder="Search agents, tasks, steps" title="Filter by agent, task, reason or step" autocomplete="off" spellcheck="false">
+          <button class="link" id="btn-clear" type="button" hidden>Clear</button>
+        </div>
+        <span class="grow"></span>
+        <button type="button" class="link small" id="fleet-alert" data-admin hidden>Turn on notifications</button>
+      </div>
+    </section>
+
+    <details class="more" id="more">
+      <summary>More <span class="dim">file areas, flow, task views</span></summary>
+      <div class="more-in">
+        <div class="radar" id="radar" hidden></div>
+        <div class="flow" id="flow" hidden></div>
+        <div class="tview-row"><span class="dim small">Show tasks</span>
+          <span class="seg" role="tablist" aria-label="tasks view"><button type="button" data-tview="stage" aria-selected="true">By stage</button><button type="button" data-tview="ws" aria-selected="false">By group</button><button type="button" data-tview="folder" aria-selected="false">Files</button><button type="button" data-tview="heat" data-local hidden aria-selected="false">Heat map</button></span></div>
+      </div>
+    </details>
+    <div class="train-wrap" id="train-wrap" hidden><span class="tr-l">Merge queue</span><div id="train"></div></div>
+
+    <section class="empty panel" id="empty" hidden></section>
+
+    <div class="cols">
+      <div class="col-main">
+        <section id="attention" class="panel">
+          <div class="panel-h"><h2 id="list-title">Needs attention</h2><span id="list-n" class="n"></span></div>
+          <ol id="issues" class="issues rows scroll"></ol>
+        </section>
+        <section id="tasks-box" class="panel">
+          <div class="panel-h"><h2>Tasks</h2><span id="pulse"></span></div>
+          <div id="work"></div>
+        </section>
+        <section id="changes-box" class="panel">
+          <div class="panel-h"><h2>Changes</h2><span class="n" id="changes-n"></span><span class="grow"></span>
+            <div class="seg" id="changes-tabs" role="group" aria-label="Show changes">
+              <button type="button" data-ctab="all" aria-pressed="true">All</button>
+              <button type="button" data-ctab="queue" aria-pressed="false">Merge queue</button>
+              <button type="button" data-ctab="landed" aria-pressed="false">Landed</button>
+            </div>
+          </div>
+          <ol id="changes" class="changes rows"></ol>
+          <details class="past" id="past-box" hidden><summary id="past-sum">Past attempts</summary><ol id="past" class="changes rows"></ol></details>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="dock" id="dock" hidden>
+    <div class="dock-in">
+      <div class="thread" id="thread" hidden aria-live="polite"></div>
+      <div class="dock-run" id="dock-run" hidden></div>
+      <form class="composer" id="run" hidden autocomplete="off">
+        <textarea id="run-req" rows="1" required minlength="6" placeholder="Ask the agents to build or fix something…" aria-label="What should the agents do?"></textarea>
+        <div class="composer-bar">
+          <button type="button" class="chip pick-chip" id="run-pick" hidden title="Choose a model"><span class="cl">Model</span> <b id="run-pick-l">choose</b><span class="pick-caret">▾</span></button>
+          <label class="chip" id="run-model-f" title="Model"><span class="cl">Model</span>
+            <select id="run-model">
+              <option value="@cf/openai/gpt-oss-120b">GPT-OSS 120B (fast)</option>
+              <option value="@cf/moonshotai/kimi-k2.7-code">Kimi K2.7 Code (strong, slow to start)</option>
+              <option value="@cf/deepseek-ai/deepseek-v4-flash-0731">DeepSeek V4 Flash</option>
+              <option value="@cf/zai-org/glm-5.3-flash">GLM 5.3 Flash (cheapest)</option>
+            </select>
+          </label>
+          <label class="chip" title="Agents"><span class="cl">Agents</span> <input id="run-agents" type="number" min="1" max="6" step="1" value="3" inputmode="numeric"></label>
+          <label class="chip" id="run-budget-f" title="Spending limit in dollars"><span class="cl">Up to </span>$<input id="run-budget" type="number" min="0.1" max="50" step="any" value="2" inputmode="decimal"></label>
+          <button type="button" class="chip rules-chip" id="run-rules" hidden title="What to do when work keeps failing">Rules</button>
+          <button type="button" class="chip tasks-chip" id="run-tasks" title="Direct tasks: supply specific tasks or paste a plan instead of model planning">Tasks: auto</button>
+          <span class="chip-note" id="run-where">Runs on Cloudflare, free model</span>
+          <span class="grow"></span>
+          <button type="submit" class="primary send" id="run-go" title="Start (Enter)">Start</button>
+        </div>
+      </form>
+      <p class="run-status" id="run-status" role="status"></p>
+    </div>
+  </footer>
+
+  <div class="pop-back" id="pop-back" hidden></div>
+  <div class="popover" id="switcher" hidden role="dialog" aria-label="Switch project">
+    <input id="sw-q" type="search" placeholder="Search projects" autocomplete="off" spellcheck="false">
+    <ol id="sw-list" class="sw-list"></ol>
+    <div class="pop-foot"><button type="button" id="sw-new">+ New project</button><button type="button" class="link" id="sw-all">All projects</button><span class="grow"></span><button type="button" class="link" id="sw-cancel">Cancel</button></div>
+  </div>
+  <div class="popover rules-pop" id="rulespop" hidden role="dialog" aria-label="Rules">
+    <h3>Rules for this run</h3>
+    <label class="check"><input type="checkbox" id="rule-esc"> Stop and ask me after <input id="rule-tries" type="number" min="1" max="20" value="3" class="mini-num"> failed tries</label>
+    <label class="check"><input type="checkbox" id="rule-pause"> Pause a task group when <input id="rule-pct" type="number" min="10" max="100" step="5" value="40" class="mini-num">% of its changes are sent back</label>
+    <label class="check"><input type="checkbox" id="rule-leads"> Add a lead agent to review each group's changes</label>
+    <div class="pop-foot"><span class="grow"></span><button type="button" class="primary" id="rules-done">Done</button></div>
+  </div>
+  <div class="popover tasks-pop" id="taskspop" hidden role="dialog" aria-label="Direct Tasks">
+    <div class="tasks-pop-head">
+      <h3>Direct Tasks Plan</h3>
+      <span class="dim small">Supply explicit tasks to bypass model planning</span>
+    </div>
+    <div class="tasks-mode-bar">
+      <button type="button" class="chip active" id="tasks-tab-cards">Cards</button>
+      <button type="button" class="chip" id="tasks-tab-json">JSON Plan</button>
+      <span class="grow"></span>
+      <button type="button" class="link small" id="tasks-load-draft" title="Load draft plan from project root">Load from project</button>
+      <button type="button" class="link small" id="tasks-clear">Clear</button>
+    </div>
+    <div id="tasks-cards-view">
+      <div id="tasks-list" class="tasks-list scroll"></div>
+      <button type="button" class="small" id="tasks-add-btn">+ Add Task</button>
+    </div>
+    <div id="tasks-json-view" hidden>
+      <textarea id="tasks-json-input" class="mono tasks-json-textarea" rows="11" placeholder='[&#10;  {&#10;    "title": "Task title",&#10;    "description": "Task instructions for agent",&#10;    "accept": ["node test/..."]&#10;  }&#10;]'></textarea>
+    </div>
+    <div class="pop-foot">
+      <span class="small dim" id="tasks-status-text">Using AI model planner</span>
+      <span class="grow"></span>
+      <button type="button" class="primary" id="tasks-apply-btn">Apply</button>
+    </div>
+  </div>
+  <div class="popover gh-pop" id="folderpop" hidden role="dialog" aria-label="Folder">
+    <div id="folder-body"></div>
+    <div class="pop-foot"><span class="grow"></span><button type="button" class="link" id="folder-close">Close</button></div>
+  </div>
+  <div class="popover gh-pop" id="ghpop" hidden role="dialog" aria-label="GitHub">
+    <div id="gh-body"></div>
+    <div class="pop-foot"><span class="grow"></span><button type="button" class="link" id="gh-close">Close</button></div>
+  </div>
+
+  <aside class="flyout" id="flyout" hidden aria-label="details"><div class="fly-in" id="fly"></div></aside>
+  <aside class="flyout livepane" id="livepane" hidden aria-label="Live activity">
+    <div class="fly-in">
+      <div class="lv-top" id="lv-top"></div>
+      <section id="activity" class="panel lv-act">
+        <div class="panel-h"><h2>Activity</h2><span class="n" id="feed-n"></span><button type="button" class="link small" id="act-toggle">Show all</button><span class="grow"></span>
+          <span class="seg" id="channels" role="tablist" aria-label="activity channel"></span></div>
+        <div class="feed-focus" id="feed-focus" hidden></div>
+        <div class="feed-wrap">
+          <ol id="feed" class="feed rows scroll" aria-live="off"></ol>
+          <button type="button" class="new-pill" id="feed-new" hidden></button>
+        </div>
+      </section>
+    </div>
+  </aside>
+
+  <dialog id="new-dialog" aria-label="New project">
+    <form class="np" id="new-form" autocomplete="off">
+      <div class="np-head"><h2>New project</h2><span class="grow"></span><button type="button" class="link" data-close aria-label="Close">✕</button></div>
+      <div class="np-where" id="np-where" hidden><span class="dim small">Where</span><button type="button" data-where="" aria-pressed="true">This computer</button><button type="button" data-where="/cloud" aria-pressed="false">Cloudflare</button></div>
+      <div class="np-src" id="np-from" role="tablist" aria-label="Start from">
+        <button type="button" role="tab" data-src="" aria-selected="true"><b>Empty</b><span>just a README</span></button>
+        <button type="button" role="tab" data-src="folders" data-local><b>Folders</b><span>on this computer</span></button>
+        <button type="button" role="tab" data-src="github" data-local><b>GitHub</b><span>your repositories</span></button>
+        <button type="button" role="tab" data-src="import"><b>Git URL</b><span>GitLab, Bitbucket, any server</span></button>
+      </div>
+
+      <div class="np-panel" data-for="folders" hidden>
+        <div class="fp-picked" id="fp-picked"></div>
+        <div class="fp">
+          <div class="fp-bar"><input id="fp-path" spellcheck="false" placeholder="~/projects"><button type="button" id="fp-go">Go</button></div>
+          <div class="fp-recents" id="fp-recents"></div>
+          <ol class="fp-list" id="fp-list"></ol>
+          <div class="fp-foot"><span class="fp-here mono" id="fp-here"></span><button type="button" id="fp-add-here">Add this folder</button></div>
+        </div>
+        <p class="hint">What lands is written back: a plain folder gets the files, a git folder gets a "converge" branch to merge. Your own edits are never overwritten. Git history and uncommitted work are included; .gitignore is respected. Each folder gets its own subfolder.</p>
+      </div>
+
+      <div class="np-panel" data-for="import" hidden>
+        <label class="field">Git URL
+          <input id="np-url" spellcheck="false" placeholder="https://gitlab.com/you/repo.git  or  git@host:you/repo.git">
+        </label>
+        <label class="field" id="np-token-row">Access token <span class="dim small">for private HTTPS repos; SSH uses your keys</span>
+          <input id="np-token" type="password" autocomplete="off" placeholder="Saved by converge to clone and push">
+        </label>
+      </div>
+
+      <div class="np-panel" data-for="github" hidden>
+        <p class="dim small" id="gh-note"></p>
+        <div class="row"><button type="button" class="primary" id="gh-setup" hidden>Set up GitHub</button><a class="btn" id="gh-connect" hidden>Connect GitHub</a><button type="button" class="link" id="gh-refresh" hidden>Refresh</button></div>
+        <input id="gh-filter" type="search" placeholder="Find a repository" hidden autocomplete="off" spellcheck="false">
+        <ol class="gh-repos" id="gh-repos"></ol>
+      </div>
+
+      <div class="np-foot" id="np-foot">
+        <label class="field np-name">Project name
+          <input id="np-name" spellcheck="false" placeholder="my-app">
+        </label>
+        <button type="submit" class="primary" id="np-go">Create</button>
+      </div>
+      <span class="err" id="np-error" role="alert"></span>
+    </form>
+  </dialog>
+
+  <dialog id="model-dialog" aria-label="Choose a model">
+    <div class="md">
+      <div class="md-head">
+        <input id="md-q" type="search" placeholder="Search models or enter a model ID" autocomplete="off" spellcheck="false">
+        <button type="button" class="link" id="md-refresh" title="Refresh list">↻</button>
+        <button type="button" class="link" data-close aria-label="Close">✕</button>
+      </div>
+      <div class="md-body">
+        <nav class="md-provs" id="md-provs" aria-label="providers"></nav>
+        <div class="md-main">
+          <div class="md-recent" id="md-recent"></div>
+          <ol class="md-models" id="md-models"></ol>
+        </div>
+      </div>
+      <div class="md-foot" id="md-foot">
+        <span class="md-eff-l">Effort</span>
+        <span class="seg" id="md-effort"></span>
+        <span class="grow"></span>
+        <span class="dim small" id="md-note"></span>
+        <button type="button" class="primary" data-close>Done</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="train-dialog" aria-label="Merge queue">
+    <div class="td">
+      <div class="td-head"><h2>Merge queue</h2><span class="dim small" id="td-sum"></span><span class="grow"></span><span class="dim small">↑ ↓ to reorder</span><button type="button" class="link" data-close aria-label="Close">✕</button></div>
+      <div class="td-body">
+        <ol class="td-list" id="td-list" aria-label="Changes in the queue"></ol>
+        <div class="td-detail" id="td-detail"></div>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="diffs-dialog" class="diffs-dialog" aria-label="Inspect changes">
+    <div class="diffs-modal">
+      <div class="diffs-head">
+        <div class="diffs-head-main">
+          <h2>Inspect changes</h2>
+          <span class="diffs-counter" id="diffs-counter"></span>
+          <span class="dim small ell" id="diffs-task-title"></span>
+        </div>
+        <div class="diffs-head-actions">
+          <div class="diffs-page-nav">
+            <button type="button" class="btn-page prev" id="diffs-prev" title="Previous change (← or ↑)">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+              <span>Prev</span>
+            </button>
+            <span class="diffs-paging-status" id="diffs-paging-status"></span>
+            <button type="button" class="btn-page next" id="diffs-next" title="Next change (→ or ↓)">
+              <span>Next</span>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+          </div>
+          <span class="dim small diffs-hint">← → to page</span>
+          <button type="button" class="link diffs-close" data-close aria-label="Close">✕</button>
+        </div>
+      </div>
+      <div class="diffs-body">
+        <aside class="diffs-sidebar" aria-label="List of changes">
+          <div class="diffs-sidebar-head">
+            <span class="diffs-sidebar-title">All changes</span>
+            <span class="n" id="diffs-list-count"></span>
+          </div>
+          <ol class="diffs-list" id="diffs-list"></ol>
+        </aside>
+        <main class="diffs-viewer" id="diffs-viewer" aria-live="polite">
+          <div class="diffs-view-container" id="diffs-view-container"></div>
+        </main>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="keys-dialog">
+    <div class="dlg-tabs" role="tablist">
+      <button type="button" role="tab" data-tab="k-converge" aria-selected="true">Access keys</button>
+      <button type="button" role="tab" data-tab="k-github" aria-selected="false">GitHub</button>
+      <button type="button" role="tab" data-tab="k-providers" aria-selected="false">Providers</button>
+      <button type="button" role="tab" data-tab="k-clis" aria-selected="false">CLI logins</button>
+      <button type="button" role="tab" data-tab="k-cloudflare" aria-selected="false">Cloudflare</button>
+      <span class="grow"></span>
+      <button type="button" class="link" data-close aria-label="Close">✕</button>
+    </div>
+    <form class="dlg" id="keys-form" method="dialog" data-panel="k-converge">
+      <p class="dim small">Keys for opening this project in this browser.</p>
+      <label class="field">Project <input id="in-project" autocomplete="off" spellcheck="false" required></label>
+      <div class="field">
+        <label for="in-view">View key</label>
+        <div class="key-input-row">
+          <input id="in-view" type="password" autocomplete="off">
+          <button type="button" class="btn-icon" data-toggle="in-view" title="Show or hide" aria-label="Show or hide view key"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          <button type="button" class="btn-icon" data-copy="in-view" title="Copy" aria-label="Copy view key"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4v12a2 2 0 002 2h8a2 2 0 002-2V7.242a2 2 0 00-.602-1.43L16.08 2.57A2 2 0 0014.685 2H10a2 2 0 00-2 2z"/><path d="M16 18v2a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2h2"/></svg></button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="in-reviewer">Reviewer key <span class="dim small">to see and land changes</span></label>
+        <div class="key-input-row">
+          <input id="in-reviewer" type="password" autocomplete="off" placeholder="To see and land changes">
+          <button type="button" class="btn-icon" data-toggle="in-reviewer" title="Show or hide" aria-label="Show or hide reviewer key"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          <button type="button" class="btn-icon" data-copy="in-reviewer" title="Copy" aria-label="Copy reviewer key"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4v12a2 2 0 002 2h8a2 2 0 002-2V7.242a2 2 0 00-.602-1.43L16.08 2.57A2 2 0 0014.685 2H10a2 2 0 00-2 2z"/><path d="M16 18v2a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2h2"/></svg></button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="in-admin">Admin key <span class="dim small">to rewind agents and main</span></label>
+        <div class="key-input-row">
+          <input id="in-admin" type="password" autocomplete="off" placeholder="To rewind agents and main">
+          <button type="button" class="btn-icon" data-toggle="in-admin" title="Show or hide" aria-label="Show or hide admin key"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          <button type="button" class="btn-icon" data-copy="in-admin" title="Copy" aria-label="Copy admin key"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4v12a2 2 0 002 2h8a2 2 0 002-2V7.242a2 2 0 00-.602-1.43L16.08 2.57A2 2 0 0014.685 2H10a2 2 0 00-2 2z"/><path d="M16 18v2a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2h2"/></svg></button>
+        </div>
+      </div>
+      <label class="check"><input type="checkbox" id="in-remember"> Remember on this device</label>
+      <span class="err" id="project-error" role="alert"></span>
+      <div class="row"><span class="grow"></span><button type="button" data-close>Cancel</button><button type="submit" class="primary">Save</button></div>
+    </form>
+    <div class="dlg" id="k-github" data-panel="k-github" hidden></div>
+    <div class="dlg" id="k-providers" data-panel="k-providers" hidden></div>
+    <div class="dlg" id="k-clis" data-panel="k-clis" hidden></div>
+    <div class="dlg" id="k-cloudflare" data-panel="k-cloudflare" hidden></div>
+  </dialog>
+  <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+</body>
+</html>

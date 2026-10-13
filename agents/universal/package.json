@@ -1,0 +1,7 @@
+{
+  "name": "universal-agent",
+  "version": "0.1.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "description": "The provider-agnostic multi-step agent converge runs its agents with."
+}

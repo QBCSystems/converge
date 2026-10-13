@@ -1,0 +1,182 @@
+[
+ {
+  "key": "roman",
+  "title": "Roman numerals",
+  "description": "Add the Roman numerals tool to Pocket with the id `roman`, following AGENTS.md: src/logic/roman.js (toRoman(n) for 1..3999 and fromRoman(s), round trip.), src/tools/roman.js (the view), test/roman.test.mjs (node:test tests of the logic), and one entry in TOOLS in src/registry.js. Touch nothing else.",
+  "accept": [
+   "node --input-type=module -e \"import { toRoman, fromRoman } from './src/logic/roman.js'; if (toRoman(1994)!=='MCMXCIV'||fromRoman('MMXXVI')!==2026) process.exit(1)\"",
+   "node --test test/roman.test.mjs"
+  ]
+ },
+ {
+  "key": "bmi",
+  "title": "BMI",
+  "description": "Add the BMI tool to Pocket with the id `bmi`, following AGENTS.md: src/logic/bmi.js (bmi(kg, cm) returns the body-mass index rounded to one decimal, and bmiBand(value) returns 'under', 'normal', 'over' or 'obese' (cut-offs 18.5, 25, 30).), src/tools/bmi.js (the view), test/bmi.test.mjs (node:test tests of the logic), and one entry in TOOLS in src/registry.js. Touch nothing else.",
+  "accept": [
+   "node --input-type=module -e \"import { bmi, bmiBand } from './src/logic/bmi.js'; if (bmi(70,175)!==22.9||bmiBand(22.9)!=='normal'||bmiBand(31)!=='obese') process.exit(1)\"",
+   "node --test test/bmi.test.mjs"
+  ]
+ },
+ {
+  "key": "fuel",
+  "title": "Fuel cost",
+  "description": "Add the Fuel cost tool to Pocket with the id `fuel`, following AGENTS.md: src/logic/fuel.js (tripCost(km, litresPer100km, pricePerLitre) returns the trip's fuel cost rounded to cents.), src/tools/fuel.js (the view), test/fuel.test.mjs (node:test tests of the logic), and one entry in TOOLS in src/registry.js. Touch nothing else.",
+  "accept": [
+   "node --input-type=module -e \"import { tripCost } from './src/logic/fuel.js'; if (tripCost(250,6,1.8)!==27) process.exit(1)\"",
+   "node --test test/fuel.test.mjs"
+  ]
+ },
+ {
+  "key": "interest",
+  "title": "Compound interest",
+  "description": "Add the Compound interest tool to Pocket with the id `interest`, following AGENTS.md: src/logic/interest.js (compound(principal, ratePercent, years, perYear) returns the final amount rounded to cents.), src/tools/interest.js (the view), test/interest.test.mjs (node:test tests of the logic), and one entry in TOOLS in src/registry.js. Touch nothing else.",
+  "accept": [
+   "node --input-type=module -e \"import { compound } from './src/logic/interest.js'; if (compound(1000,5,10,1)!==1628.89) process.exit(1)\"",
+   "node --test test/interest.test.mjs"
+  ]
+ },
+ {
+  "key": "discount",
+  "title": "Discount",
+  "description": "Add the Discount tool to Pocket with the id `discount`, following AGENTS.md: src/logic/discount.js (applyDiscount(price, percent) returns { final, saved } rounded to cents.), src/tools/discount.js (the view), test/discount.test.mjs (node:test tests of the logic), and one entry in TOOLS in src/registry.js. Touch nothing else.",
+  "accept": [
+   "node --input-type=module -e \"import { applyDiscount } from './src/logic/discount.js'; const r=applyDiscount(80,25); if (r.final!==60||r.saved!==20) process.exit(1)\"",
+   "node --test test/discount.test.mjs"
+  ]
+ },
+ {
+  "key": "age",
+  "title": "Age",
+  "description": "Add the Age tool to Pocket with the id `age`, following AGENTS.md: src/logic/age.js (ageOn(birthISO, onISO) returns { years, months, days } between two ISO dates.), src/tools/age.js (the view), test/age.test.mjs (node:test tests of the logic), and one entry in TOOLS in src/registry.js. Touch nothing else.",
+  "accept": [
+   "node --input-type=module -e \"import { ageOn } from './src/logic/age.js'; const a=ageOn('1990-05-15','2026-10-05'); if (a.years!==36||a.months!==4||a.days!==20) process.exit(1)\"",
+   "node --test test/age.test.mjs"
+  ]
+ },
+ {
+  "key": "leap",
+  "title": "Leap years",
+  "description": "Add the Leap years tool to Pocket with the id `leap`, following AGENTS.md: src/logic/leap.js (isLeap(year) per the Gregorian rules, and nextLeap(year) returns the first leap year after it.), src/tools/leap.js (the view), test/leap.test.mjs (node:test tests of the logic), and one entry in TOOLS in src/registry.js. Touch nothing else.",
+  "accept": [
+   "node --input-type=module -e \"import { isLeap, nextLeap } from './src/logic/leap.js'; if (!isLeap(2000)||isLeap(1900)||nextLeap(2026)!==2028) process.exit(1)\"",
+   "node --test test/leap.test.mjs"
+  ]
+ },
+ {
+  "key": "caesar",
+  "title": "Caesar cipher",
+  "description": "Add the Caesar cipher tool to Pocket with the id `caesar`, following AGENTS.md: src/logic/caesar.js (shift(text, n) shifts letters by n keeping case and non-letters; unshift(text, n) reverses it.), src/tools/caesar.js (the view), test/caesar.test.mjs (node:test tests of the logic), and one entry in TOOLS in src/registry.js. Touch nothing else.",
+  "accept": [
+   "node --input-type=module -e \"import { shift, unshift } from './src/logic/caesar.js'; if (shift('Hello, World!',3)!=='Khoor, Zruog!'||unshift('Khoor',3)!=='Hello') process.exit(1)\"",
+   "node --test test/caesar.test.mjs"
+  ]
+ },
+ {
+  "key": "palindrome",
+  "title": "Palindromes",
+  "description": "Add the Palindromes tool to Pocket with the id `palindrome`, following AGENTS.md: src/logic/palindrome.js (isPalindrome(text) ignores case, spaces and punctuation.), src/tools/palindrome.js (the view), test/palindrome.test.mjs (node:test tests of the logic), and one entry in TOOLS in src/registry.js. Touch nothing else.",
+  "accept": [
+   "node --input-type=module -e \"import { isPalindrome } from './src/logic/palindrome.js'; if (!isPalindrome('A man, a plan, a canal: Panama')||isPalindrome('converge')) process.exit(1)\"",
+   "node --test test/palindrome.test.mjs"
+  ]
+ },
+ {
+  "key": "primes",
+  "title": "Primes",
+  "description": "Add the Primes tool to Pocket with the id `primes`, following AGENTS.md: src/logic/primes.js (isPrime(n), and primesUpTo(n) returns the primes up to n in order.), src/tools/primes.js (the view), test/primes.test.mjs (node:test tests of the logic), and one entry in TOOLS in src/registry.js. Touch nothing else.",
+  "accept": [
+   "node --input-type=module -e \"import { isPrime, primesUpTo } from './src/logic/primes.js'; if (!isPrime(97)||isPrime(91)||primesUpTo(20).join()!=='2,3,5,7,11,13,17,19') process.exit(1)\"",
+   "node --test test/primes.test.mjs"
+  ]
+ },
+ {
+  "key": "gcd",
+  "title": "GCD and LCM",
+  "description": "Add the GCD and LCM tool to Pocket with the id `gcd`, following AGENTS.md: src/logic/gcd.js (gcd(a, b) and lcm(a, b) for positive integers.), src/tools/gcd.js (the view), test/gcd.test.mjs (node:test tests of the logic), and one entry in TOOLS in src/registry.js. Touch nothing else.",
+  "accept": [
+   "node --input-type=module -e \"import { gcd, lcm } from './src/logic/gcd.js'; if (gcd(84,36)!==12||lcm(4,6)!==12) process.exit(1)\"",
+   "node --test test/gcd.test.mjs"
+  ]
+ },
+ {
+  "key": "fraction",
+  "title": "Fractions",
+  "description": "Add the Fractions tool to Pocket with the id `fraction`, following AGENTS.md: src/logic/fraction.js (simplify(n, d) returns [n, d] in lowest terms, and add([a,b],[c,d]) returns the simplified sum.), src/tools/fraction.js (the view), test/fraction.test.mjs (node:test tests of the logic), and one entry in TOOLS in src/registry.js. Touch nothing else.",
+  "accept": [
+   "node --input-type=module -e \"import { simplify, add } from './src/logic/fraction.js'; if (simplify(6,8).join()!=='3,4'||add([1,2],[1,3]).join()!=='5,6') process.exit(1)\"",
+   "node --test test/fraction.test.mjs"
+  ]
+ },
+ {
+  "key": "stats",
+  "title": "Statistics",
+  "description": "Add the Statistics tool to Pocket with the id `stats`, following AGENTS.md: src/logic/stats.js (mean(list), median(list) and mode(list) of numbers (mode returns the smallest most frequent value).), src/tools/stats.js (the view), test/stats.test.mjs (node:test tests of the logic), and one entry in TOOLS in src/registry.js. Touch nothing else.",
+  "accept": [
+   "node --input-type=module -e \"import { mean, median, mode } from './src/logic/stats.js'; if (mean([1,2,3,4])!==2.5||median([5,1,3])!==3||mode([2,2,3,3,1])!==2) process.exit(1)\"",
+   "node --test test/stats.test.mjs"
+  ]
+ },
+ {
+  "key": "ascii",
+  "title": "ASCII codes",
+  "description": "Add the ASCII codes tool to Pocket with the id `ascii`, following AGENTS.md: src/logic/ascii.js (codes(text) returns the character codes, and fromCodes(list) builds the text back.), src/tools/ascii.js (the view), test/ascii.test.mjs (node:test tests of the logic), and one entry in TOOLS in src/registry.js. Touch nothing else.",
+  "accept": [
+   "node --input-type=module -e \"import { codes, fromCodes } from './src/logic/ascii.js'; if (codes('Hi').join()!=='72,105'||fromCodes([79,75])!=='OK') process.exit(1)\"",
+   "node --test test/ascii.test.mjs"
+  ]
+ },
+ {
+  "key": "sorter",
+  "title": "Line sorter",
+  "description": "Add the Line sorter tool to Pocket with the id `sorter`, following AGENTS.md: src/logic/sorter.js (sortLines(text, { reverse, unique }) sorts the lines of a text alphabetically, optionally reversed and de-duplicated.), src/tools/sorter.js (the view), test/sorter.test.mjs (node:test tests of the logic), and one entry in TOOLS in src/registry.js. Touch nothing else.",
+  "accept": [
+   "node --input-type=module -e \"import { sortLines } from './src/logic/sorter.js'; if (sortLines('b\\na\\nb',{unique:true})!=='a\\nb'||sortLines('a\\nc\\nb',{reverse:true})!=='c\\nb\\na') process.exit(1)\"",
+   "node --test test/sorter.test.mjs"
+  ]
+ },
+ {
+  "key": "calories",
+  "title": "Calories burned",
+  "description": "Add the Calories burned tool to Pocket with the id `calories`, following AGENTS.md: src/logic/calories.js (burned(met, kg, minutes) returns kcal rounded to a whole number (MET x kg x hours).), src/tools/calories.js (the view), test/calories.test.mjs (node:test tests of the logic), and one entry in TOOLS in src/registry.js. Touch nothing else.",
+  "accept": [
+   "node --input-type=module -e \"import { burned } from './src/logic/calories.js'; if (burned(8,70,30)!==280) process.exit(1)\"",
+   "node --test test/calories.test.mjs"
+  ]
+ },
+ {
+  "key": "water",
+  "title": "Water intake",
+  "description": "Add the Water intake tool to Pocket with the id `water`, following AGENTS.md: src/logic/water.js (dailyWater(kg, activeMinutes) returns millilitres: 35 ml per kg plus 12 ml per active minute, rounded to the nearest 10.), src/tools/water.js (the view), test/water.test.mjs (node:test tests of the logic), and one entry in TOOLS in src/registry.js. Touch nothing else.",
+  "accept": [
+   "node --input-type=module -e \"import { dailyWater } from './src/logic/water.js'; if (dailyWater(70,30)!==2810) process.exit(1)\"",
+   "node --test test/water.test.mjs"
+  ]
+ },
+ {
+  "key": "sleep",
+  "title": "Sleep cycles",
+  "description": "Add the Sleep cycles tool to Pocket with the id `sleep`, following AGENTS.md: src/logic/sleep.js (wakeTimes(bedHHMM) returns the wake-up times (HH:MM) after 4, 5 and 6 cycles of 90 minutes plus 15 minutes to fall asleep.), src/tools/sleep.js (the view), test/sleep.test.mjs (node:test tests of the logic), and one entry in TOOLS in src/registry.js. Touch nothing else.",
+  "accept": [
+   "node --input-type=module -e \"import { wakeTimes } from './src/logic/sleep.js'; if (wakeTimes('23:00').join()!=='05:15,06:45,08:15') process.exit(1)\"",
+   "node --test test/sleep.test.mjs"
+  ]
+ },
+ {
+  "key": "grade",
+  "title": "Grade average",
+  "description": "Add the Grade average tool to Pocket with the id `grade`, following AGENTS.md: src/logic/grade.js (weighted(items) returns the weighted average of [{score, weight}] rounded to one decimal, and letter(avg) returns A (90+), B (80+), C (70+), D (60+) or F.), src/tools/grade.js (the view), test/grade.test.mjs (node:test tests of the logic), and one entry in TOOLS in src/registry.js. Touch nothing else.",
+  "accept": [
+   "node --input-type=module -e \"import { weighted, letter } from './src/logic/grade.js'; const w=weighted([{score:90,weight:2},{score:70,weight:1}]); if (w!==83.3||letter(w)!=='B') process.exit(1)\"",
+   "node --test test/grade.test.mjs"
+  ]
+ },
+ {
+  "key": "vat",
+  "title": "Sales tax",
+  "description": "Add the Sales tax tool to Pocket with the id `vat`, following AGENTS.md: src/logic/vat.js (withTax(net, ratePercent) and withoutTax(gross, ratePercent), both rounded to cents.), src/tools/vat.js (the view), test/vat.test.mjs (node:test tests of the logic), and one entry in TOOLS in src/registry.js. Touch nothing else.",
+  "accept": [
+   "node --input-type=module -e \"import { withTax, withoutTax } from './src/logic/vat.js'; if (withTax(100,20)!==120||withoutTax(120,20)!==100) process.exit(1)\"",
+   "node --test test/vat.test.mjs"
+  ]
+ }
+]

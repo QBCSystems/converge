@@ -1,0 +1,88 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "converge",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "ui"
+  },
+  // Runs started from the dashboard go to converge-sandbox, which runs the agents in a container.
+  "services": [{ "binding": "SANDBOX", "service": "converge-sandbox" }],
+  // Demo projects anyone may watch read-only, no key: ?project=<name>&watch=1 on the dashboard.
+  "vars": { "PUBLIC_PROJECTS": "", "PUBLIC_PREFIXES": "", "SANDBOX_TEMPLATES": "pocket,arcade" },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "PROJECT",
+        "class_name": "Project"
+      },
+      {
+        "name": "RUNNER",
+        "class_name": "Runner"
+      },
+      {
+        "name": "GITHUB",
+        "class_name": "GitHubLink"
+      },
+      {
+        "name": "RUNNERWATCH",
+        "class_name": "RunnerWatch"
+      }
+    ]
+  },
+  // Every 5 minutes: stop any runner container idle for 12 minutes (they are billed while running).
+  "triggers": { "crons": ["*/5 * * * *"] },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["Project"]
+    },
+    {
+      "tag": "v2",
+      "new_sqlite_classes": ["Runner"]
+    },
+    {
+      "tag": "v3",
+      "new_sqlite_classes": ["Launcher"]
+    },
+    // The dashboard launcher ("studio") was removed:
+    {
+      "tag": "v4",
+      "deleted_classes": ["Launcher"]
+    },
+    // The GitHub App link (worker/github.ts).
+    {
+      "tag": "v5",
+      "new_sqlite_classes": ["GitHubLink"]
+    },
+    // The runner watchdog (worker/watch.ts): stops runners that were left running.
+    {
+      "tag": "v6",
+      "new_sqlite_classes": ["RunnerWatch"]
+    }
+  ],
+  // The verification runners. The engine itself runs as WebAssembly inside each project's Durable
+  // Object; only the projects' own checks need a Linux process. The image is built and pushed
+  // without Docker by scripts/oci.mjs (scripts/runner-image.sh), which writes its reference here.
+  "containers": [
+    {
+      "class_name": "Runner",
+      "image": "registry.cloudflare.com/66a9444a589027355804b45c69cb0eec/converge-runner:d78c86e-1791834862",
+      "instance_type": "standard-1",
+      "max_instances": 12
+    }
+  ],
+  "queues": {
+    "consumers": [
+      {
+        "queue": "converge-artifacts-events"
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "binding": "ARTIFACTS",
+      "namespace": "converge"
+    }
+  ]
+}

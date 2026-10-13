@@ -1,0 +1,39 @@
+# Builds
+/build*/
+/engine/build*/
+/dist/
+CMakeCache.txt
+CMakeFiles/
+*.o
+*.a
+
+# Dependencies & runtime
+node_modules/
+.wrangler/
+.dev.vars*
+
+# Secrets & environment
+.env
+.env.*
+*.pem
+*.key
+
+# Local runtime data & logs
+/data/
+/.converge_dev_data/
+/.converge_workspaces/
+/.build/
+/.t/
+*.log
+
+# Editors & OS
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+__pycache__/
+*.pyc
+
+# Local scratch & media
+media/

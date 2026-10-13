@@ -1,0 +1,30 @@
+{
+  "name": "converge",
+  "version": "0.1.0",
+  "description": "Agent coordination engine on Cloudflare Workers, Containers and Artifacts",
+  "license": "Apache-2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "node scripts/dev-server.mjs",
+    "task": "node agents/converge.mjs task",
+    "check": "tsc --noEmit",
+    "test": "node --test test/*.test.mjs",
+    "join": "node agents/converge.mjs join",
+    "converge": "node agents/converge.mjs",
+    "provision": "./scripts/provision.sh"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261002.1",
+    "typescript": "^5.6.3",
+    "wrangler": "^4.147.0"
+  },
+  "engines": {
+    "node": ">=22.6"
+  },
+  "dependencies": {
+    "@cloudflare/containers": "^0.3.7",
+    "ws": "^8.18.0"
+  }
+}
